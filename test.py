@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.io import wavfile
+import wave
 import scipy.io
 import padasip as pa
 import math
@@ -18,25 +18,30 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     y = scipy.signal.lfilter(b, a, data)
     return y
 
-samplerate, data = wavfile.read(r"C:\Users\UriMiron\Documents\Recordings\breath.wav")
-length = data.shape[0] / samplerate
-time = np.linspace(0., length, data.shape[0])
+with wave.open('try.wav', 'r') as wav_file:
+    # Get the number of audio frames in the file
+    num_frames = wav_file.getnframes()
+    # Read all audio frames as a byte string
+    audio_bytes = wav_file.readframes(num_frames)
+
+# Convert the byte string to a numpy array of integers
+audio_data = np.frombuffer(audio_bytes, dtype=np.int16)
+samplerate= wav_file.getframerate()
+time= np.arange(0, len(audio_data)) / samplerate
 
 
 
 
 lowcut= 500
 highcut= 1500
-
-y = butter_bandpass_filter(data, lowcut, highcut, samplerate, order=6)
-plt.plot(time, y[:, 1], label='Filtered signal')
+y = butter_bandpass_filter(audio_data, lowcut, highcut, samplerate)
+plt.plot(time, y, label='Filtered signal')
 plt.xlabel('time (seconds)')
 plt.grid(True)
 plt.axis('tight')
 plt.legend(loc='upper left')
 plt.show()
-
-
-peaks, _=   scipy.signal.find_peaks(y[:, 1],distance=5000, height=0.01, width=1250)
-
-print(peaks)
+width=samplerate*0.3
+print(audio_data.ndim)
+peaks= scipy.signal.find_peaks_cwt(audio_data, width)
+print(len(peaks))
