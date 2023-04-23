@@ -5,7 +5,7 @@ import scipy
 import math
 
 # Open the audio file
-with wave.open('Recording.wav', 'r') as wav_file:
+with wave.open('Maor1.wav', 'r') as wav_file:
     # Get the number of audio frames in the file
     num_frames = wav_file.getnframes()
     # Read all audio frames as a byte string
